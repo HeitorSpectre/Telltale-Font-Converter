@@ -1,31 +1,32 @@
+````md
 # Telltale Font Converter
 
-## What does it do? 🤔
+## 📦 What does it do?
 
-Simply put, it takes the font files from Telltale games (those classic `.fnt + .png` pairs) and converts them into a single TrueType Font file (`.ttf`).  
-Once you have the `.ttf`, you can install it on your system and use it in any program — like Photoshop, FontForge, or any other font editor!
+This tool converts Telltale Games' font files (the classic `.fnt` + `.png` pairs) into usable TTF fonts for Windows systems. It simplifies the process of turning game assets into functional fonts for editing or localization purposes.
 
----
+## ⚙️ Requirements
 
-## ⚙️ How Does It Work?
+To ensure everything works properly, follow these steps:
 
-The process is super simple and broken down into a few steps:
+### FNT and DDS Extraction
 
-1. **Give your project a name**  
-   Just a name to help you identify the font you're creating  
-   _Example: "The Walking Dead Main Font"_
+To extract `.fnt` and `.dds` files from Telltale font textures, **you must use the TTG Tools** application.  
+Go to the **Font Editor** tab inside TTG Tools to extract the required files before using them in Telltale Font Converter.
 
-2. **Upload the `.fnt` file**  
-   The tool will read the data from the file and figure out which texture files (`.png`) are needed.
+### Preprocessing Step (Before Using This Tool)
 
-3. **Upload the `.png` files**  
-   The tool will prompt you to upload the correct image files one by one.  
-   It even checks if the filenames match what’s expected!
+After extraction, place both the `.fnt` and `.dds` files inside the **DDS Converter + FNT Adjuster** tool.
 
-4. **Select the Characters**  
-   Tick the boxes for the character sets you want to include.
+This step is essential because:
 
-5. **Generate the `.ttf`**  
-   With a single click, the tool will process the images and data to generate and download your ready-to-use `.ttf` file.
+- It converts the `.dds` file to `.png`, which is required for the font to work correctly.
+- It also updates a key line in the FNT file, changing:
 
----
+page id=0 file="Arial_30_0.dds"
+
+to:
+
+page id=0 file="Arial_30_0.png"
+
+Only after this adjustment can the Telltale Font Converter properly read and convert the font files.
