@@ -1,4 +1,3 @@
-````md
 # Telltale Font Converter
 
 ## 📦 What does it do?
@@ -16,17 +15,21 @@ Go to the **Font Editor** tab inside TTG Tools to extract the required files bef
 
 ### Preprocessing Step (Before Using This Tool)
 
-After extraction, place both the `.fnt` and `.dds` files inside the **DDS Converter + FNT Adjuster** tool.
+After extraction, place both the `.fnt` and `.dds` files inside the **DDS Converter + FNT Adjuster.exe** tool.
 
 This step is essential because:
 
 - It converts the `.dds` file to `.png`, which is required for the font to work correctly.
 - It also updates a key line in the FNT file, changing:
 
+```xml
 page id=0 file="Arial_30_0.dds"
+````
 
 to:
 
+```xml
 page id=0 file="Arial_30_0.png"
+```
 
 Only after this adjustment can the Telltale Font Converter properly read and convert the font files.
