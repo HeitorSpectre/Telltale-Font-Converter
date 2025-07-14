@@ -1,0 +1,46 @@
+{
+  "name": "telltale-font-converter",
+  "version": "1.0.0",
+  "description": "A tool to convert Telltale Games font files (.fnt + .png) into a usable TTF font. It processes texture atlases and character data to generate a complete font file.",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "package": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "opentype.js": "^1.3.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "electron": "^31.1.0",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1"
+  },
+  "build": {
+    "appId": "com.telltale.fontconverter",
+    "productName": "Telltale Font Converter",
+    "files": [
+      "dist/**/*",
+      "electron-main.js"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

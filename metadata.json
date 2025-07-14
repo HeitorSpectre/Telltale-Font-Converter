@@ -1,0 +1,6 @@
+{
+  "name": "Telltale Font Converter",
+  "description": "A tool to convert Telltale Games font files (.fnt + .png) into a usable TTF font. It processes texture atlases and character data to generate a complete font file.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
