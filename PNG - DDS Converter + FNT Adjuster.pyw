@@ -1,16 +1,20 @@
 import os
+import sys
 import subprocess
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import imageio.v2 as imageio
 from PIL import Image
-import sys
 
-def get_texconv_path():
-    if getattr(sys, 'frozen', False):
-        return os.path.join(sys._MEIPASS, 'texconv.exe')
-    else:
-        return os.path.join(os.getcwd(), 'texconv.exe')
+# Função para determinar o caminho correto dos recursos empacotados
+def resource_path(relative_path):
+    """Obtém o caminho absoluto para o recurso, funciona para desenvolvimento e para PyInstaller"""
+    try:
+        # PyInstaller cria uma pasta temporária e armazena o caminho em _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 def convert_dds_to_png():
     dds_folder = filedialog.askdirectory(title="Select folder with DDS files")
@@ -38,9 +42,11 @@ def convert_png_to_dds():
     if not png_folder:
         return
 
-    texconv_path = os.path.join(os.getcwd(), "texconv.exe")
+    # Obtém o caminho correto para texconv.exe (considerando empacotamento)
+    texconv_path = resource_path("texconv.exe")
+    
     if not os.path.isfile(texconv_path):
-        messagebox.showerror("Missing Tool", "texconv.exe not found in the current directory.")
+        messagebox.showerror("Missing Tool", f"texconv.exe not found at: {texconv_path}")
         return
 
     for root, _, files in os.walk(png_folder):
