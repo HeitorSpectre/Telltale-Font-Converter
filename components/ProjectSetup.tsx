@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 
 interface ProjectSetupProps {
   onNext: (projectName: string) => void;
+  onBack: () => void;
 }
 
-export const ProjectSetup: React.FC<ProjectSetupProps> = ({ onNext }) => {
+export const ProjectSetup: React.FC<ProjectSetupProps> = ({ onNext, onBack }) => {
   const [name, setName] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,13 +29,22 @@ export const ProjectSetup: React.FC<ProjectSetupProps> = ({ onNext }) => {
           placeholder="e.g., My Telltale Font"
           className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
         />
-        <button
-          type="submit"
-          disabled={!name.trim()}
-          className="mt-6 w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors duration-200"
-        >
-          Continue
-        </button>
+        <div className="mt-6 space-y-2">
+            <button
+              type="submit"
+              disabled={!name.trim()}
+              className="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              Continue
+            </button>
+            <button
+              type="button"
+              onClick={onBack}
+              className="w-full px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Back
+            </button>
+        </div>
       </form>
     </div>
   );

@@ -1,6 +1,8 @@
+
 import { CHAR_SET_NAMES } from './constants';
 
 export type AppState = 'setup' | 'fnt_upload' | 'png_upload' | 'processing' | 'generating' | 'done';
+export type ConversionMode = 'select' | 'fntToTtf' | 'ttfToFnt';
 
 export type CharSetName = typeof CHAR_SET_NAMES[number];
 
