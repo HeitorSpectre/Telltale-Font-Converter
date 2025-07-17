@@ -1,26 +1,57 @@
-### 🆕 New Feature Added to Telltale Font Converter!
+# Telltale Font Converter
 
-The Telltale Font Converter now includes a function to convert TTF fonts into fonts compatible with Telltale Games! 🎉
+## What does it do? 🤔
 
-This means you can take any TTF font you like and add it to your favorite Telltale game.
+Simply put, it takes the font files from Telltale Games (those classic `.fnt + .png` pairs) and converts them into a single TrueType Font file (`.ttf`).  
+Once you have the `.ttf`, you can install it on your system and use it in any program — like Photoshop, FontForge, or any other font editor!
 
-> ⚠️ Important note: To make everything work properly, you'll need **TTG Tools** and the **"PNG - DDS Converter + FNT Adjuster.exe"** tool that I created.
+---
 
-### ✅ How to use it:
+## ⚙️ How Does It Work?
 
-1. **Convert the TTF font**
-   - Use the **Telltale Font Converter** to turn your `.ttf` font into `.png` and `.fnt` files.
+The process is super simple and broken down into a few steps:
 
-2. **Convert the PNG to DDS**
-   - Open the **"PNG - DDS Converter + FNT Adjuster.exe"** tool.
-   - Click the **"Convert PNG to DDS (DXT5)"** option and select the folder with your `.png` file.
+1. **Give your project a name**  
+   Just a name to help you identify the font you're creating  
+   _Example: "The Walking Dead Main Font"_
 
-3. **Adjust the FNT to match the DDS**
-   - In the same tool, click the **"Adjust FNT to DDS"** option and select the folder containing your `.fnt` file.
+2. **Upload the `.fnt` file**  
+   The tool will read the data from the file and figure out which texture files (`.png`) are needed.
 
-4. **Rebuild the font**
-   - Use **TTG Tools**, available at [https://github.com/zenderovpaulo95/TTG-Tools](https://github.com/zenderovpaulo95/TTG-Tools).
-   - Go to the **Font Editor** section and rebuild your font using the adjusted files.
+3. **Upload the `.png` files**  
+   The tool will prompt you to upload the correct image files one by one.  
+   It even checks if the filenames match what’s expected!
 
-Done! Your custom font is now ready to be used in your Telltale game! 🔥
+4. **Select the Characters**  
+   Tick the boxes for the character sets you want to include.
 
+5. **Generate the `.ttf`**  
+   With a single click, the tool will process the images and data to generate and download your ready-to-use `.ttf` file.
+
+---
+
+## 🔁 New! Convert TTF Back Into Telltale Fonts
+
+A brand new feature has been added: now you can also convert TTF fonts back into the original `.fnt + .png` format used by Telltale Games!
+
+This allows you to take any custom font and use it in your favorite Telltale titles.
+
+> ⚠️ Note: To make it work properly, you’ll need **TTG Tools** and my custom tool **"PNG - DDS Converter + FNT Adjuster.exe"**.
+
+### How to use it:
+
+1. **Convert your `.ttf`**  
+   Use **Telltale Font Converter** to generate `.png` and `.fnt` files from any TTF font.
+
+2. **Convert the `.png` to `.dds`**  
+   Open **"PNG - DDS Converter + FNT Adjuster.exe"**.  
+   Click **"Convert PNG to DDS (DXT5)"** and select the folder containing your `.png` file.
+
+3. **Adjust the `.fnt` file**  
+   Still in the same tool, click **"Adjust FNT to DDS"** and select the folder with your `.fnt` file.
+
+4. **Rebuild the font for Telltale games**  
+   Use **TTG Tools**, available here: [https://github.com/zenderovpaulo95/TTG-Tools](https://github.com/zenderovpaulo95/TTG-Tools)  
+   Open the **Font Editor** and rebuild your font using the adjusted files.
+
+Now your custom font is ready to be used inside any Telltale game! 🔥
