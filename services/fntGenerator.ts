@@ -14,14 +14,15 @@ const triggerDownload = (url: string, filename: string) => {
     URL.revokeObjectURL(url);
 };
 
-export const generateFntAndPng = async (
+export const generateFontAssets = async (
   font: opentype.Font,
   projectName: string,
   fontSize: number,
   selectedCharsets: SelectedCharsets,
   atlasWidth: number = 1024,
   atlasHeight: number = 1024,
-  spacing: number = 2 // Spacing between glyphs on the atlas
+  textureFormat: 'png' | 'dds' = 'png',
+  spacing: number = 2
 ): Promise<void> => {
     let charsToRender = "";
     CHAR_SET_NAMES.forEach(name => {
@@ -33,8 +34,7 @@ export const generateFntAndPng = async (
 
     const pages: { canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D }[] = [];
     let currentPageIndex = -1;
-    let atlasCtx: CanvasRenderingContext2D;
-
+    
     const addNewPage = () => {
         const canvas = document.createElement('canvas');
         canvas.width = atlasWidth;
@@ -45,7 +45,6 @@ export const generateFntAndPng = async (
         ctx.clearRect(0, 0, atlasWidth, atlasHeight);
         pages.push({ canvas, ctx });
         currentPageIndex++;
-        atlasCtx = ctx;
     };
     
     addNewPage();
@@ -101,7 +100,7 @@ export const generateFntAndPng = async (
         }
 
         const canvasWidth = glyphWidth + GLYPH_PADDING * 2;
-        const canvasHeight = lineHeight; // Use fixed height for all character cells
+        const canvasHeight = lineHeight;
 
         if (canvasWidth > atlasWidth || canvasHeight > atlasHeight) {
              console.warn(`Skipping character '${char}' because its size (${canvasWidth}x${canvasHeight}) exceeds the atlas size (${atlasWidth}x${atlasHeight}).`);
@@ -128,10 +127,9 @@ export const generateFntAndPng = async (
         if (!tempCtx) continue;
         tempCtx.imageSmoothingEnabled = false;
 
-        // Draw the glyph onto the fixed-height canvas, using `base` as the baseline
         const path = glyph.getPath(
             -metrics.xMin * scale + GLYPH_PADDING,
-            base, // Set baseline position from the top of the canvas
+            base,
             fontSize
         );
         path.fill = '#FFFFFF';
@@ -145,7 +143,7 @@ export const generateFntAndPng = async (
             x: currentX,
             y: currentY,
             width: canvasWidth,
-            height: canvasHeight, // Use fixed canvasHeight
+            height: canvasHeight,
             xoffset: Math.round(metrics.xMin * scale),
             yoffset: Math.round(base - (metrics.yMax * scale)),
             xadvance: Math.round(glyph.advanceWidth * scale),
@@ -159,6 +157,7 @@ export const generateFntAndPng = async (
     }
 
     const safeProjectName = projectName.replace(/"/g, '');
+    let finalPngFileNames: string[] = [];
     const fntLines = [
         `info face="${safeProjectName}" size=${fontSize} bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=${GLYPH_PADDING},${GLYPH_PADDING},${GLYPH_PADDING},${GLYPH_PADDING} spacing=${spacing},${spacing} outline=0`,
         `common lineHeight=${lineHeight} base=${base} scaleW=${atlasWidth} scaleH=${atlasHeight} pages=${pages.length} packed=0 alphaChnl=1 redChnl=4 greenChnl=4 blueChnl=4`,
@@ -166,7 +165,8 @@ export const generateFntAndPng = async (
 
     pages.forEach((_, i) => {
         const pageFileName = pages.length > 1 ? `${safeProjectName}_${i}.png` : `${safeProjectName}.png`;
-        fntLines.push(`page id=${i} file="${pageFileName}"`);
+        finalPngFileNames.push(pageFileName);
+        fntLines.push(`page id=${i} file="${pageFileName.replace('.png', '.dds')}"`);
     });
 
     fntLines.push(`chars count=${fntCharsData.length}`);
@@ -178,11 +178,51 @@ export const generateFntAndPng = async (
     const fntBlob = new Blob([fntContent], { type: 'text/plain;charset=utf-8' });
     triggerDownload(URL.createObjectURL(fntBlob), `${safeProjectName}.fnt`);
 
-    pages.forEach((page, i) => {
-        const pageFileName = pages.length > 1 ? `${safeProjectName}_${i}.png` : `${safeProjectName}.png`;
-        page.canvas.toBlob(pngBlob => {
-            if (!pngBlob) throw new Error('Failed to create PNG blob for page ' + i);
-            triggerDownload(URL.createObjectURL(pngBlob), pageFileName);
-        }, 'image/png');
+    const downloadPromises = pages.map((page, i) => {
+        return new Promise<void>((resolve, reject) => {
+            const pageFileName = finalPngFileNames[i];
+            page.canvas.toBlob(pngBlob => {
+                if (!pngBlob) {
+                    return reject(new Error('Failed to create PNG blob for page ' + i));
+                }
+                triggerDownload(URL.createObjectURL(pngBlob), pageFileName);
+                resolve();
+            }, 'image/png');
+        });
     });
+
+    await Promise.all(downloadPromises);
+
+    if (textureFormat === 'dds') {
+        const batchCommands = [
+            '@echo off',
+            'echo.',
+            'echo This script will convert PNG files to DDS (DXT5).',
+            'echo Make sure texconv.exe is in this folder.',
+            'echo.',
+            'if not exist .\\texconv.exe (',
+            '  echo texconv.exe not found!',
+            '  echo Download it from https://github.com/microsoft/DirectXTex/releases',
+            '  pause',
+            '  exit /b',
+            ')',
+            ''
+        ];
+
+        finalPngFileNames.forEach(pngFileName => {
+            const ddsFileName = pngFileName.replace('.png', '.dds');
+            batchCommands.push(`echo Converting ${pngFileName} to ${ddsFileName}...`);
+            batchCommands.push(`texconv.exe -f DXT5 -o . -y "${pngFileName}"`);
+        });
+
+        batchCommands.push('');
+        batchCommands.push('echo.');
+        batchCommands.push('echo Conversion complete!');
+        batchCommands.push('echo You can now delete the .png files if you no longer need them.');
+        batchCommands.push('pause');
+        
+        const batchContent = batchCommands.join('\r\n');
+        const batchBlob = new Blob([batchContent], { type: 'text/plain' });
+        triggerDownload(URL.createObjectURL(batchBlob), 'convert_to_dds.bat');
+    }
 };

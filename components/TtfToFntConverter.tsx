@@ -4,7 +4,7 @@ import * as opentype from 'opentype.js';
 import { FileUpload } from './FileUpload';
 import { SelectedCharsets, CharSetName } from '../types';
 import { LoaderIcon, CheckCircleIcon, ExclamationTriangleIcon } from './icons';
-import { generateFntAndPng } from '../services/fntGenerator';
+import { generateFontAssets } from '../services/fntGenerator';
 import { CHAR_SET_NAMES, CHAR_SETS } from '../constants';
 
 type TtfConverterState = 'upload' | 'configure' | 'generating' | 'done';
@@ -21,6 +21,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
   const [fontSize, setFontSize] = useState<string>('64');
   const [textureWidth, setTextureWidth] = useState<string>('1024');
   const [textureHeight, setTextureHeight] = useState<string>('1024');
+  const [textureFormat, setTextureFormat] = useState<'png' | 'dds'>('png');
   const [error, setError] = useState<string | null>(null);
   const [selectedCharsets, setSelectedCharsets] = useState<SelectedCharsets>(
     () => CHAR_SET_NAMES.reduce((acc, name) => ({ ...acc, [name]: true }), {})
@@ -74,8 +75,8 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
         allowedChars += CHAR_SETS[name];
       }
     }
-    const uniqueChars = Array.from(new Set(allowedChars.split('')));
-    return uniqueChars.filter(char => font.charToGlyph(char).index !== 0).sort().join('');
+    const uniqueChars = Array.from(new Set(allowedChars.split(''))).sort();
+    return uniqueChars.filter(char => font.charToGlyph(char).index !== 0).join('');
   }, [selectedCharsets, font]);
 
   const handleGenerate = async () => {
@@ -88,7 +89,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
     setStep('generating');
     setError(null);
     try {
-      await generateFntAndPng(font, projectName, finalFontSize, selectedCharsets, finalTextureWidth, finalTextureHeight);
+      await generateFontAssets(font, projectName, finalFontSize, selectedCharsets, finalTextureWidth, finalTextureHeight, textureFormat);
       setStep('done');
     } catch (err) {
       console.error(err);
@@ -105,6 +106,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
     setFontSize('64');
     setTextureWidth('1024');
     setTextureHeight('1024');
+    setTextureFormat('png');
     setError(null);
     setSelectedCharsets(
       CHAR_SET_NAMES.reduce((acc, name) => ({ ...acc, [name]: true }), {})
@@ -128,6 +130,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
           </div>
         );
       case 'configure':
+        const generateButtonText = textureFormat === 'dds' ? 'Generate FNT, PNG & DDS Script' : 'Generate FNT & PNG';
         return (
           <div className="space-y-6">
             <div>
@@ -140,7 +143,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
                 <input id="project-name" type="text" value={projectName} onChange={e => setProjectName(e.target.value)} className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"/>
               </div>
               
-              <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex-1">
                     <label htmlFor="font-size" className="block text-sm font-medium text-gray-300 mb-2">Font Size (px)</label>
                     <input id="font-size" type="number" value={fontSize} onChange={e => setFontSize(e.target.value)} className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"/>
@@ -155,6 +158,18 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
                 </div>
               </div>
 
+              <div>
+                <label htmlFor="texture-format" className="block text-sm font-medium text-gray-300 mb-2">Texture Format</label>
+                <select id="texture-format" value={textureFormat} onChange={e => setTextureFormat(e.target.value as 'png' | 'dds')} className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                  <option value="png">PNG</option>
+                  <option value="dds">DDS (DXT5)</option>
+                </select>
+              </div>
+              {textureFormat === 'dds' && (
+                <div className="mt-2 p-3 bg-blue-900/40 border border-blue-700 text-blue-300 rounded-lg text-sm">
+                  <p><strong>Note:</strong> A Windows batch file (`convert_to_dds.bat`) will be generated. Place `texconv.exe` in the same folder as the downloaded files and run the batch file to convert the PNGs to DDS (DXT5).</p>
+                </div>
+              )}
             </div>
             
             <div className="pt-4 border-t border-gray-700">
@@ -177,7 +192,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
 
             <div className="pt-4 border-t border-gray-700">
               <button onClick={handleGenerate} disabled={!projectName || !(parseInt(fontSize, 10) > 0) || !(parseInt(textureWidth, 10) > 0) || !(parseInt(textureHeight, 10) > 0) || includedChars.length === 0} className="w-full flex justify-center items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors duration-200">
-                Generate FNT & PNG
+                {generateButtonText}
               </button>
             </div>
           </div>
@@ -194,7 +209,7 @@ export const TtfToFntConverter: React.FC<TtfToFntConverterProps> = ({ onBack }) 
           <div className="flex flex-col items-center justify-center text-center p-8">
             <CheckCircleIcon className="h-16 w-16 text-green-500" />
             <h2 className="mt-4 text-2xl font-bold">Success!</h2>
-            <p className="mt-2 text-gray-300">Your .fnt and .png files have been generated and downloaded.</p>
+            <p className="mt-2 text-gray-300">Your font files have been generated and downloaded.</p>
             <button onClick={handleReset} className="mt-6 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
               Start New Conversion
             </button>
