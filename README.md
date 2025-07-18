@@ -54,4 +54,12 @@ This allows you to take any custom font and use it in your favorite Telltale tit
    Use **TTG Tools**, available here: [https://github.com/zenderovpaulo95/TTG-Tools](https://github.com/zenderovpaulo95/TTG-Tools)  
    Open the **Font Editor** and rebuild your font using the adjusted files.
 
+---
+
+## 🔧 About the PNG - DDS Converter + FNT Adjuster
+
+This tool was built to streamline the process of preparing fonts for Telltale games, and it uses the official [DirectXTex](https://github.com/microsoft/DirectXTex) library from Microsoft to handle image conversions.
+
+> The `texconv.exe` files required for conversion are already included inside the **"PNG - DDS Converter + FNT Adjuster"** folder, so you don’t need to download anything else separately.
+
 Now your custom font is ready to be used inside any Telltale game! 🔥
