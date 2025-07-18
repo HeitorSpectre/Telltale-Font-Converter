@@ -30,7 +30,7 @@ The process is super simple and broken down into a few steps:
 
 ---
 
-## 🔁 New! Convert TTF Back Into Telltale Fonts
+## 🔁 v.1.1 - New! Convert TTF Back Into Telltale Fonts
 
 A brand new feature has been added: now you can also convert TTF fonts back into the original `.fnt + .png` format used by Telltale Games!
 
@@ -53,6 +53,20 @@ This allows you to take any custom font and use it in your favorite Telltale tit
 4. **Rebuild the font for Telltale games**  
    Use **TTG Tools**, available here: [https://github.com/zenderovpaulo95/TTG-Tools](https://github.com/zenderovpaulo95/TTG-Tools)  
    Open the **Font Editor** and rebuild your font using the adjusted files.
+
+## 🔁 v.1.2 - Add DDS (DXT5) Export via Batch Script
+
+This commit introduces support for generating DDS (DXT5) textures as part of the TTF to FNT conversion workflow.
+
+Since web applications cannot directly execute local command-line tools like `texconv.exe`, this feature is implemented through the generation of a helper Windows batch script (`.bat`), alongside the standard `.fnt` and `.png` files.
+
+### Key Changes:
+- A new "Texture Format" dropdown menu has been added to the configuration screen, allowing users to select between "PNG" and "DDS (DXT5)".
+- When "DDS (DXT5)" is selected, an informational message is displayed, instructing users on how to use the generated batch file with `texconv.exe`.
+- The `generateFontAssets` service now conditionally creates a `convert_to_dds.bat` file. This script contains the necessary commands to convert all generated PNG textures to the DDS DXT5 format.
+- The generated `.fnt` file is updated to reference the final `.dds` filenames instead of `.png` when the DDS option is selected.
+
+This provides an optimized workflow for users who require DDS textures, while respecting browser security limitations.
 
 ---
 
